@@ -40,4 +40,8 @@ export class GoalsRepositoryInMemory implements IGoalsRepository {
     const result = goals.reduce((acc, value) => Number(acc) + Number(value.income_value), 0);
     return result;
   }
+
+  async getAllGoals(user_id: string): Promise<Goal[]> {
+    return this.goals.filter((goal) => goal.user_id === user_id);
+  }
 }
