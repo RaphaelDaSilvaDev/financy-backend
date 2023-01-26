@@ -39,4 +39,10 @@ export class GoalsRepository implements IGoalsRepository {
   async findByName(name: string, user_id: string): Promise<Goal> {
     return this.repository.findOne({ where: { user_id, name } });
   }
+
+  async getAllPercentagesValues(user_id: string): Promise<number> {
+    const goals = await this.repository.find({ where: { user_id, income_type: "percentage" } });
+    const result = goals.reduce((acc, value) => Number(acc) + Number(value.income_value), 0);
+    return result;
+  }
 }

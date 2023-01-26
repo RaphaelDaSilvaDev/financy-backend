@@ -44,4 +44,42 @@ describe("Create a Goal", () => {
       await createGoalUseCase.execute(goal);
     }).rejects.toBeInstanceOf(AppError);
   });
+
+  it("should be not able to create a goal with percentage more then 100%", () => {
+    expect(async () => {
+      await createGoalUseCase.execute({
+        color: "red",
+        end_by: "value",
+        end_by_value: "1000",
+        income_type: "percentage",
+        income_value: 10,
+        name: "Test Goal",
+        user_id: "user_id",
+      });
+
+      await createGoalUseCase.execute({
+        color: "red",
+        end_by: "value",
+        end_by_value: "1000",
+        income_type: "percentage",
+        income_value: 100,
+        name: "Test Goal",
+        user_id: "user_id",
+      });
+    }).rejects.toBeInstanceOf(AppError);
+  });
+
+  it("should be not able to create a goal with value equals to 0", () => {
+    expect(async () => {
+      await createGoalUseCase.execute({
+        color: "red",
+        end_by: "value",
+        end_by_value: "1000",
+        income_type: "percentage",
+        income_value: 0,
+        name: "Test Goal",
+        user_id: "user_id",
+      });
+    }).rejects.toBeInstanceOf(AppError);
+  });
 });

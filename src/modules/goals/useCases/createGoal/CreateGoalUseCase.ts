@@ -25,6 +25,16 @@ export class CreateGoalUseCase {
       throw new AppError("This goal already exists!");
     }
 
+    if (income_value <= 0) {
+      throw new AppError("Enter a value to save!");
+    }
+
+    const percentageTotalValue = await this.goalsRepository.getAllPercentagesValues(user_id);
+
+    if (income_type === "percentage" && income_value + percentageTotalValue > 100) {
+      throw new AppError("Maximum percentage reached!");
+    }
+
     const response = await this.goalsRepository.create({
       color,
       end_by,
