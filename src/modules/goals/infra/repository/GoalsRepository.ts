@@ -57,4 +57,16 @@ export class GoalsRepository implements IGoalsRepository {
       throw new AppError("Could not delete!");
     }
   }
+
+  async getAvailablePercentageByUser(user_id: string): Promise<number> {
+    const allPercentageGoals = await this.repository.find({
+      where: { user_id, income_type: "percentage" },
+    });
+    const total = allPercentageGoals.reduce(
+      (acc, total) => Number(acc) + Number(total.income_value),
+      0
+    );
+    const available = 100 - total;
+    return available;
+  }
 }
