@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from "typeorm";
 
-export class CreateEntries1675261006409 implements MigrationInterface {
+export class CreateEntryGoals1675268486007 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: "entries",
+        name: "entry_goals",
         columns: [
           {
             name: "id",
@@ -12,15 +12,15 @@ export class CreateEntries1675261006409 implements MigrationInterface {
             isPrimary: true,
           },
           {
-            name: "income",
+            name: "value",
             type: "numeric",
           },
           {
-            name: "outcome",
-            type: "numeric",
+            name: "entry_id",
+            type: "uuid",
           },
           {
-            name: "user_id",
+            name: "goal_id",
             type: "uuid",
           },
           {
@@ -31,10 +31,18 @@ export class CreateEntries1675261006409 implements MigrationInterface {
         ],
         foreignKeys: [
           {
-            name: "FKEntryUser",
-            referencedTableName: "users",
+            name: "FKEntryIncome",
+            referencedTableName: "entries",
             referencedColumnNames: ["id"],
-            columnNames: ["user_id"],
+            columnNames: ["entry_id"],
+            onDelete: "CASCADE",
+            onUpdate: "CASCADE",
+          },
+          {
+            name: "FKEntryGoal",
+            referencedTableName: "goals",
+            referencedColumnNames: ["id"],
+            columnNames: ["goal_id"],
             onDelete: "CASCADE",
             onUpdate: "CASCADE",
           },
@@ -44,6 +52,6 @@ export class CreateEntries1675261006409 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable("entries");
+    await queryRunner.dropTable("entry_goals");
   }
 }

@@ -7,11 +7,11 @@ import { inject, injectable } from "tsyringe";
 export class CreateEntryUseCase {
   constructor(
     @inject("EntriesRepository")
-    private repository: IEntriesRepository
+    private entriesRepository: IEntriesRepository
   ) {}
 
   async execute({ user_id, income, outcome }: ICreateEntry) {
-    const entry = await this.repository.create({ user_id, income, outcome });
+    const entry = await this.entriesRepository.create({ user_id, income, outcome });
 
     if (!entry) {
       throw new AppError("Can not create this entry");

@@ -17,8 +17,12 @@ export class EntriesRepository implements IEntriesRepository {
       user_id,
     });
 
-    this.repository.save(entry);
+    await this.repository.save(entry);
 
     return entry;
+  }
+
+  async findEntry(id: string): Promise<Entry> {
+    return await this.repository.findOne({ id });
   }
 }
