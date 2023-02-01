@@ -69,4 +69,11 @@ export class GoalsRepository implements IGoalsRepository {
     const available = 100 - total;
     return available;
   }
+
+  async getAllGoalsByAmount(user_id: string): Promise<Goal[]> {
+    return await this.repository.find({ where: { user_id: user_id, income_type: "amount" } });
+  }
+  async getAllGoalsByPercentage(user_id: string): Promise<Goal[]> {
+    return await this.repository.find({ where: { user_id: user_id, income_type: "percentage" } });
+  }
 }
