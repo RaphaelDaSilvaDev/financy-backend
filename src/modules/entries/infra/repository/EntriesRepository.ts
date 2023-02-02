@@ -25,4 +25,10 @@ export class EntriesRepository implements IEntriesRepository {
   async findEntry(id: string): Promise<Entry> {
     return await this.repository.findOne({ id });
   }
+
+  async listAllEntries(id: string): Promise<Entry[]> {
+    const allEntries = await this.repository.find({ where: { user_id: id } });
+
+    return allEntries;
+  }
 }

@@ -3,7 +3,7 @@ import { IGoalsRepository } from "@modules/goals/repositories/IGoalsRepository";
 import { inject, injectable } from "tsyringe";
 
 @injectable()
-export class ListGoalsUseCase {
+export class GeneralReportUseCase {
   constructor(
     @inject("GoalsRepository")
     private goalsRepository: IGoalsRepository,
@@ -24,6 +24,19 @@ export class ListGoalsUseCase {
       })
     );
 
-    return goalsWithBalance;
+    const totalBalance = goalsWithBalance.reduce(
+      (acc, value) => Number(acc) + Number(value.balance),
+      0
+    );
+
+    const goalsPercentage = goalsWithBalance.map((goal) => {
+      const percentage = ((goal.balance / totalBalance) * 100).toFixed(1);
+      const goalWithPercentage = Object.assign(goal, {
+        percentage,
+      });
+      return goalWithPercentage;
+    });
+
+    return goalsPercentage;
   }
 }
