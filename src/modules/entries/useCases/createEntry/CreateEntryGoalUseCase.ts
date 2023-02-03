@@ -31,16 +31,6 @@ export class CreateEntryGoalUseCase {
     const goalsAmount = await this.goalRepository.getAllGoalsByAmount(entry.user_id);
     const goalsPercentage = await this.goalRepository.getAllGoalsByPercentage(entry.user_id);
 
-    const totalAmountGoals = goalsAmount.reduce((acc, value) => {
-      if (value.income_type === "amount") {
-        return Number(acc) + Number(value.income_value);
-      }
-    }, 0);
-
-    if (totalAmountGoals > balance) {
-      throw new AppError("Insufficient funds!");
-    }
-
     const goalAmount = await Promise.all(
       goalsAmount.map(async (goal) => {
         balance -= goal.income_value;

@@ -1,5 +1,6 @@
 import { ICreateEntryGoals } from "@modules/entries/interfaces/ICreateEntryGoals";
 import { IEntryGoalsRepository } from "@modules/entries/repositories/IEntryGoalsRepository";
+import { AppError } from "@shared/errors/AppError";
 import { getRepository, In, Repository } from "typeorm";
 import { EntryGoals } from "../entities/EntryGoals";
 
@@ -25,6 +26,7 @@ export class EntryGoalsRepository implements IEntryGoalsRepository {
   async listGoalEntries(entry_ids: string[], goal_id: string): Promise<EntryGoals[]> {
     const entries = await this.repository.find({
       where: { entry_id: In(entry_ids), goal_id: goal_id },
+      order: { created_at: "DESC" },
     });
     return entries;
   }
@@ -32,5 +34,12 @@ export class EntryGoalsRepository implements IEntryGoalsRepository {
   async getTotal(goal_id: string): Promise<number> {
     const goals = await this.repository.find({ goal_id });
     return goals.reduce((acc, value) => Number(acc) + Number(value.value), 0);
+  }
+
+  async deleteEntry(id: string): Promise<void> {
+    const response = await this.repository.delete({ id });
+    if (response.affected === 0) {
+      throw new AppError("Could not delete!");
+    }
   }
 }
