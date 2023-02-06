@@ -1,7 +1,10 @@
 import { ICreateEntryGoals } from "@modules/entries/interfaces/ICreateEntryGoals";
-import { IEntryGoalsRepository } from "@modules/entries/repositories/IEntryGoalsRepository";
+import {
+  getGoalByDateProps,
+  IEntryGoalsRepository,
+} from "@modules/entries/repositories/IEntryGoalsRepository";
 import { AppError } from "@shared/errors/AppError";
-import { getRepository, In, Repository } from "typeorm";
+import { Between, getRepository, In, Repository } from "typeorm";
 import { EntryGoals } from "../entities/EntryGoals";
 
 export class EntryGoalsRepository implements IEntryGoalsRepository {
@@ -41,5 +44,11 @@ export class EntryGoalsRepository implements IEntryGoalsRepository {
     if (response.affected === 0) {
       throw new AppError("Could not delete!");
     }
+  }
+
+  async getGoalByDate({ date_interval, goal_id }: getGoalByDateProps): Promise<EntryGoals[]> {
+    return await this.repository.find({
+      where: { created_at: Between(date_interval[0], date_interval[1]), goal_id },
+    });
   }
 }
