@@ -9,8 +9,12 @@ import { UpdateUserAdminController } from "@modules/users/useCases/updateUserAmi
 import { Router } from "express";
 import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { ensureIsAdmin } from "../middlewares/ensureIsAdmin";
+import multer from "multer";
+import uploadConfig from "@config/upload";
 
 const userRoutes = Router();
+
+const uploadAvatar = multer(uploadConfig.upload("./tmp/avatar"));
 
 const createUserController = new CreateUserController();
 const authenticationUserController = new AuthenticationUserController();
@@ -25,7 +29,12 @@ userRoutes.post("/", createUserController.handle);
 
 userRoutes.post("/session", authenticationUserController.handle);
 
-userRoutes.patch("/update", ensureAuthenticated, updateUserController.handle);
+userRoutes.patch(
+  "/update",
+  ensureAuthenticated,
+  uploadAvatar.single("avatar"),
+  updateUserController.handle
+);
 
 userRoutes.delete("/delete", ensureAuthenticated, deleteUserController.handle);
 
