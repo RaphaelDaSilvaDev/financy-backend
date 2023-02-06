@@ -15,7 +15,7 @@ export class Entry {
 
   @ManyToOne(() => User)
   @JoinColumn({ name: "user_id" })
-  user: User;
+  user?: User;
 
   @Column()
   user_id: string;

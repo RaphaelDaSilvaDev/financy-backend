@@ -1,7 +1,7 @@
 import { ICreateEntry } from "@modules/entries/interfaces/ICreateEntry";
 import { IEntriesRepository } from "@modules/entries/repositories/IEntriesRepository";
 import { AppError } from "@shared/errors/AppError";
-import { getRepository, Repository } from "typeorm";
+import { Between, getRepository, Repository } from "typeorm";
 import { Entry } from "../entities/Entry";
 
 export class EntriesRepository implements IEntriesRepository {
@@ -41,5 +41,11 @@ export class EntriesRepository implements IEntriesRepository {
     if (response.affected === 0) {
       throw new AppError("Could not delete!");
     }
+  }
+
+  async getByDate(user_id: string, date_interval: string[]): Promise<Entry[]> {
+    return await this.repository.find({
+      where: { user_id, created_at: Between(date_interval[0], date_interval[1]) },
+    });
   }
 }
