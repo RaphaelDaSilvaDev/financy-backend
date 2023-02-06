@@ -3,6 +3,7 @@ import { AppError } from "@shared/errors/AppError";
 import { compare } from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { inject, injectable } from "tsyringe";
+import { resolve } from "path";
 
 interface IRequest {
   email: string;
@@ -14,6 +15,9 @@ interface IResponse {
     name: string;
     email: string;
     isAdmin: boolean;
+    avatar: string;
+    date: Date;
+    gender: string;
   };
   token: string;
 }
@@ -43,12 +47,28 @@ export class AuthenticationUserUseCase {
       expiresIn: "1d",
     });
 
+    const avatarLocation = resolve(
+      __dirname,
+      "..",
+      "..",
+      "..",
+      "..",
+      "..",
+      "..",
+      "..",
+      "images/avatar"
+    );
+    const avatar = "http://localhost:3333" + avatarLocation + "/" + user.avatar;
+
     const tokenReturn: IResponse = {
       token,
       user: {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
+        avatar,
+        date: user.born,
+        gender: user.gender,
       },
     };
 

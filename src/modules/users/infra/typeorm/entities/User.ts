@@ -18,6 +18,15 @@ export class User {
   @Column()
   isAdmin: boolean;
 
+  @Column()
+  born: Date;
+
+  @Column()
+  gender: string;
+
+  @Column()
+  avatar: string;
+
   @CreateDateColumn()
   created_at: Date;
 

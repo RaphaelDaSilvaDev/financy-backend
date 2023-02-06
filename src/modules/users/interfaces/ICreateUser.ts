@@ -4,4 +4,7 @@ export interface ICreateUser {
   email: string;
   password: string;
   isAdmin?: boolean;
+  gender?: string;
+  born?: Date;
+  avatar?: string;
 }
