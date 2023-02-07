@@ -6,9 +6,21 @@ import { GoalsRepository } from "@modules/goals/infra/repository/GoalsRepository
 import { IGoalsRepository } from "@modules/goals/repositories/IGoalsRepository";
 import { UsersRepository } from "@modules/users/infra/typeorm/repository/UsersRepository";
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
-import { container } from "tsyringe";
+import { container, delay } from "tsyringe";
 
-container.registerSingleton<IUsersRepository>("UsersRepository", UsersRepository);
-container.registerSingleton<IGoalsRepository>("GoalsRepository", GoalsRepository);
-container.registerSingleton<IEntriesRepository>("EntriesRepository", EntriesRepository);
-container.registerSingleton<IEntryGoalsRepository>("EntryGoalsRepository", EntryGoalsRepository);
+container.registerSingleton<IUsersRepository>(
+  "UsersRepository",
+  delay(() => UsersRepository)
+);
+container.registerSingleton<IGoalsRepository>(
+  "GoalsRepository",
+  delay(() => GoalsRepository)
+);
+container.registerSingleton<IEntriesRepository>(
+  "EntriesRepository",
+  delay(() => EntriesRepository)
+);
+container.registerSingleton<IEntryGoalsRepository>(
+  "EntryGoalsRepository",
+  delay(() => EntryGoalsRepository)
+);
