@@ -5,7 +5,6 @@ import { userRoutes } from "./user.routes";
 
 const router = express.Router();
 
-router.use(express.static("tmp"));
 router.use("/images", express.static("tmp"));
 
 router.use("/user", userRoutes);

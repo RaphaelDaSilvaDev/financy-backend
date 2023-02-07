@@ -14,7 +14,7 @@ import uploadConfig from "@config/upload";
 
 const userRoutes = Router();
 
-const uploadAvatar = multer(uploadConfig.upload("./tmp/avatar"));
+const uploadAvatar = multer(uploadConfig);
 
 const createUserController = new CreateUserController();
 const authenticationUserController = new AuthenticationUserController();

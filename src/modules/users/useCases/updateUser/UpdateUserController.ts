@@ -10,8 +10,8 @@ export class UpdateUserController {
 
     const updateUserUseCase = container.resolve(UpdateUserUseCase);
 
-    await updateUserUseCase.execute({ id, name, password, avatar_file, born, gender });
+    const user = await updateUserUseCase.execute({ id, name, password, avatar_file, born, gender });
 
-    return response.status(201).send();
+    return response.status(201).json(user);
   }
 }
