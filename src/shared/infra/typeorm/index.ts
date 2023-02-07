@@ -2,12 +2,11 @@ import "reflect-metadata";
 
 import { createConnection, getConnectionOptions } from "typeorm";
 
-export default async (host = "financy-db") => {
+export default async () => {
   const defaultOptions = await getConnectionOptions();
-  console.log("Database is Running!");
   return createConnection(
     Object.assign(defaultOptions, {
-      host,
+      database: defaultOptions.database,
     })
   );
 };
