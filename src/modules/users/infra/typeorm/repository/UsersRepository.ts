@@ -19,7 +19,7 @@ export class UsersRepository implements IUsersRepository {
     avatar,
     born,
     gender,
-  }: ICreateUser): Promise<void> {
+  }: ICreateUser): Promise<User> {
     const user = this.repository.create({
       id,
       name,
@@ -31,9 +31,7 @@ export class UsersRepository implements IUsersRepository {
       gender,
     });
 
-    console.log(user);
-
-    await this.repository.save(user);
+    return await this.repository.save(user);
   }
 
   async findByEmail(email: string): Promise<User> {

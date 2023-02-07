@@ -1,8 +1,10 @@
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
+import { IStorageProvider } from "@shared/containers/providers/StorageProvider/IStorageProvider";
 import { AppError } from "@shared/errors/AppError";
-import { deleteFile } from "@utils/file";
 import { hash } from "bcrypt";
 import { inject, injectable } from "tsyringe";
+import { instanceToInstance } from "class-transformer";
+import { IUserResponse } from "@modules/users/interfaces/IUserResponse";
 
 interface IRequest {
   id: string;
@@ -17,10 +19,19 @@ interface IRequest {
 export class UpdateUserUseCase {
   constructor(
     @inject("UsersRepository")
-    private userRepository: IUsersRepository
+    private userRepository: IUsersRepository,
+    @inject("StorageProvider")
+    private storageProvider: IStorageProvider
   ) {}
 
-  async execute({ id, name, password, avatar_file, born, gender }: IRequest) {
+  async execute({
+    id,
+    name,
+    password,
+    avatar_file,
+    born,
+    gender,
+  }: IRequest): Promise<IUserResponse> {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
@@ -51,11 +62,25 @@ export class UpdateUserUseCase {
 
     if (avatar_file) {
       if (user.avatar) {
-        await deleteFile(`./tmp/avatar/${user.avatar}`);
+        await this.storageProvider.delete(user.avatar, "avatar");
       }
+
+      await this.storageProvider.save(avatar_file, "avatar");
       user.avatar = avatar_file;
     }
 
-    await this.userRepository.create(user);
+    const userCreated = await this.userRepository.create(user);
+
+    const userInfo: IUserResponse = instanceToInstance({
+      email: userCreated.email,
+      name: userCreated.name,
+      id: userCreated.id,
+      avatar: userCreated.avatar,
+      born: userCreated.born,
+      gender: userCreated.gender,
+      avatar_url: userCreated.avatar_url,
+    });
+
+    return userInfo;
   }
 }

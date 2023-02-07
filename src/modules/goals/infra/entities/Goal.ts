@@ -38,7 +38,7 @@ export class Goal {
   end_by_value: string;
 
   @Column()
-  finished: string;
+  finished: boolean;
 
   @Column()
   color: string;

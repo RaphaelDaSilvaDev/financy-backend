@@ -23,6 +23,8 @@ export class GoalsRepository implements IGoalsRepository {
     user_id,
   }: ICreateGoal): Promise<Goal> {
     const goal = this.repository.create({
+      id,
+      finished,
       color,
       end_by,
       end_by_value,
@@ -32,13 +34,15 @@ export class GoalsRepository implements IGoalsRepository {
       user_id,
     });
 
-    this.repository.save(goal);
-
-    return goal;
+    return await this.repository.save(goal);
   }
 
   async findByName(name: string, user_id: string): Promise<Goal> {
     return this.repository.findOne({ where: { user_id, name } });
+  }
+
+  async findById(id: string, user_id: string): Promise<Goal> {
+    return await this.repository.findOne({ id, user_id });
   }
 
   async getAllPercentagesValues(user_id: string): Promise<number> {
@@ -73,7 +77,12 @@ export class GoalsRepository implements IGoalsRepository {
   async getAllGoalsByAmount(user_id: string): Promise<Goal[]> {
     return await this.repository.find({ where: { user_id: user_id, income_type: "amount" } });
   }
+
   async getAllGoalsByPercentage(user_id: string): Promise<Goal[]> {
     return await this.repository.find({ where: { user_id: user_id, income_type: "percentage" } });
+  }
+
+  async getGoal(user_id: string, goal_id: string): Promise<Goal> {
+    return await this.repository.findOne({ user_id, id: goal_id });
   }
 }
