@@ -44,6 +44,6 @@ jobs:
           script: |
             cd ~/app/financy-backend
             yarn
-            ./node_modules/.bin/typeorm migrations:run
+            ./node_modules/.bin/typeorm migration:run
             pm2 restart server
             
