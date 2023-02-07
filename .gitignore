@@ -1,5 +1,3 @@
-tmp
-
 # Logs
 logs
 *.log
@@ -14,6 +12,9 @@ dist
 dist-ssr
 *.local
 .env
+tmp/*
+ormconfig.json
+!tmp/.gitkeep
 
 # Editor directories and files
 .vscode/*
