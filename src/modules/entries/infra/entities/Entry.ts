@@ -1,4 +1,4 @@
-import { User } from "@modules/users/infra/typeorm/entities/User";
+import { User } from "@modules/users/infra/entities/User";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
 import { v4 as uuidV4 } from "uuid";
 
