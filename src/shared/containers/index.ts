@@ -4,7 +4,7 @@ import { IEntriesRepository } from "@modules/entries/repositories/IEntriesReposi
 import { IEntryGoalsRepository } from "@modules/entries/repositories/IEntryGoalsRepository";
 import { GoalsRepository } from "@modules/goals/infra/repository/GoalsRepository";
 import { IGoalsRepository } from "@modules/goals/repositories/IGoalsRepository";
-import { UsersRepository } from "@modules/users/infra/typeorm/repository/UsersRepository";
+import { UsersRepository } from "@modules/users/infra/repository/UsersRepository";
 import { IUsersRepository } from "@modules/users/repositories/IUsersRepository";
 import { container, delay } from "tsyringe";
 
