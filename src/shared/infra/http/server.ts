@@ -11,11 +11,14 @@ import "../../containers";
 import "../../containers/providers";
 import createConnection from "../typeorm";
 import { AppError } from "@shared/errors/AppError";
+import rateLimiter from "../http/middlewares/reteLimiter";
 
 createConnection();
 const app = express();
+
 app.use(cors());
 app.use(express.json());
+app.use(rateLimiter);
 
 app.use(router);
 
