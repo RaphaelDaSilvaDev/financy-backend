@@ -30,10 +30,11 @@ export class EntryGoals {
   @Column()
   goal_id: string;
 
+  @OneToOne(() => Goal)
   @JoinTable({
     name: "goals",
-    joinColumns: [{ name: "goal_id" }],
-    inverseJoinColumns: [{ name: "id" }],
+    joinColumns: [{ name: "income_type" }],
+    inverseJoinColumns: [{ name: "goal" }],
   })
   goal: Goal;
 
