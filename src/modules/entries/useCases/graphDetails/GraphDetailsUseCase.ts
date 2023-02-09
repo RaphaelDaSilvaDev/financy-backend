@@ -3,6 +3,8 @@ import { IEntriesRepository } from "@modules/entries/repositories/IEntriesReposi
 import { inject, injectable } from "tsyringe";
 import { Entry } from "@modules/entries/infra/entities/Entry";
 import { IEntryGoalsRepository } from "@modules/entries/repositories/IEntryGoalsRepository";
+import { GraphEntry } from "@modules/entries/interfaces/GraphEntry";
+import { IGoalsRepository } from "@modules/goals/repositories/IGoalsRepository";
 
 interface IRequest {
   user_id?: string;
@@ -20,14 +22,17 @@ export class GraphDetailsUseCase {
     @inject("EntriesRepository")
     private entriesRepository: IEntriesRepository,
     @inject("EntryGoalsRepository")
-    private entryGoalRepository: IEntryGoalsRepository
+    private entryGoalRepository: IEntryGoalsRepository,
+    @inject("GoalsRepository")
+    private goalsRepository: IGoalsRepository
   ) {}
 
   async execute({ user_id, goal_id }: IRequest) {
     const today = new Date();
 
     const GetEntriesOfMonth = async ({ month, totalValue }: GetEntriesOfMonthProps) => {
-      let monthInfo: Entry[] = [];
+      let monthInfo: GraphEntry[] = [];
+      const thisGoal = await this.goalsRepository.findById(goal_id, user_id);
 
       if (!goal_id) {
         monthInfo = await this.entriesRepository.getByDate(user_id, [
@@ -42,14 +47,17 @@ export class GraphDetailsUseCase {
             format(subMonths(lastDayOfMonth(today), month), "yyyy-MM-dd"),
           ],
         });
-        const convertGoalInfo: Entry[] = goalInfo.map((goal) => {
-          return {
+
+        const convertGoalInfo = goalInfo.map((goal) => {
+          const goalInfo: GraphEntry = {
             id: goal.id,
             income: goal.value,
             outcome: 0,
             created_at: goal.created_at,
             user_id: goal.id,
+            type: thisGoal.income_type,
           };
+          return goalInfo;
         });
 
         monthInfo = convertGoalInfo;
@@ -60,10 +68,14 @@ export class GraphDetailsUseCase {
           acc.total += Number(value.income) - Number(value.outcome);
           acc.thisMonth += Number(value.income) - Number(value.outcome);
           acc.date = format(subMonths(today, month), "yyyy-MM-01");
-
           return acc;
         },
-        { total: totalValue, thisMonth: 0, date: format(subMonths(today, month), "yyyy-MM-01") }
+        {
+          total: totalValue,
+          thisMonth: 0,
+          date: format(subMonths(today, month), "yyyy-MM-01"),
+          type: goal_id ? thisGoal.income_type : "percentage",
+        }
       );
     };
 
@@ -89,57 +101,87 @@ export class GraphDetailsUseCase {
       totalValue: entriesLastMonthAgoResult.total,
     });
 
-    const entryNextMonth = {
-      total:
-        (Number(entriesLastMonthAgoResult.thisMonth) +
-          Number(entriesThisMonthAgoResult.thisMonth)) /
-          2 !==
-        0
-          ? Number(entriesThisMonthAgoResult.total) +
-            (Number(entriesLastMonthAgoResult.thisMonth) +
-              Number(entriesThisMonthAgoResult.thisMonth)) /
-              2
-          : Number(entriesThisMonthAgoResult.total) + Number(entriesThisMonthAgoResult.thisMonth),
-      thisMonth:
-        (Number(entriesLastMonthAgoResult.thisMonth) +
-          Number(entriesThisMonthAgoResult.thisMonth)) /
-          2 !==
-        0
-          ? (Number(entriesLastMonthAgoResult.thisMonth) +
-              Number(entriesThisMonthAgoResult.thisMonth)) /
-            2
-          : Number(entriesThisMonthAgoResult.thisMonth),
-      date: format(addMonths(today, 1), "yyyy-MM-01"),
-    };
+    const entryNextMonth =
+      entriesLastMonthAgoResult.type === "percentage"
+        ? {
+            total:
+              (Number(entriesLastMonthAgoResult.thisMonth) +
+                Number(entriesThisMonthAgoResult.thisMonth)) /
+                2 !==
+              0
+                ? Number(entriesThisMonthAgoResult.total) +
+                  (Number(entriesLastMonthAgoResult.thisMonth) +
+                    Number(entriesThisMonthAgoResult.thisMonth)) /
+                    2
+                : Number(entriesThisMonthAgoResult.total) +
+                  Number(entriesThisMonthAgoResult.thisMonth),
+            thisMonth:
+              (Number(entriesLastMonthAgoResult.thisMonth) +
+                Number(entriesThisMonthAgoResult.thisMonth)) /
+                2 !==
+              0
+                ? (Number(entriesLastMonthAgoResult.thisMonth) +
+                    Number(entriesThisMonthAgoResult.thisMonth)) /
+                  2
+                : Number(entriesThisMonthAgoResult.thisMonth),
+            date: format(addMonths(today, 1), "yyyy-MM-01"),
+            type: "percentage",
+          }
+        : {
+            total:
+              Number(entriesThisMonthAgoResult.total) + Number(entriesThisMonthAgoResult.thisMonth),
+            thisMonth: Number(entriesThisMonthAgoResult.thisMonth),
+            date: format(addMonths(today, 1), "yyyy-MM-01"),
+            type: "amount",
+          };
 
-    const entry2AheadMonth = {
-      total:
-        Number(entriesLastMonthAgoResult.thisMonth) !== 0
-          ? Number(entryNextMonth.total) + Number(entriesThisMonthAgoResult.thisMonth)
-          : Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.total),
-      thisMonth:
-        Number(entriesLastMonthAgoResult.thisMonth) !== 0
-          ? Number(entriesLastMonthAgoResult.thisMonth)
-          : (Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.thisMonth)) / 2,
-      date: format(addMonths(today, 2), "yyyy-MM-01"),
-    };
+    const entry2AheadMonth =
+      entryNextMonth.type === "percentage"
+        ? {
+            total:
+              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+                ? Number(entryNextMonth.total) + Number(entriesThisMonthAgoResult.thisMonth)
+                : Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.total),
+            thisMonth:
+              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+                ? Number(entriesLastMonthAgoResult.thisMonth)
+                : (Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.thisMonth)) /
+                  2,
+            date: format(addMonths(today, 2), "yyyy-MM-01"),
+            type: "percentage",
+          }
+        : {
+            total: Number(entryNextMonth.total) + Number(entryNextMonth.thisMonth),
+            thisMonth: Number(entryNextMonth.thisMonth),
+            date: format(addMonths(today, 2), "yyyy-MM-01"),
+            type: "amount",
+          };
 
-    const entry3AheadMonth = {
-      total:
-        Number(entriesLastMonthAgoResult.thisMonth) !== 0
-          ? Number(entry2AheadMonth.total) +
-            (Number(entriesThisMonthAgoResult.thisMonth) +
-              Number(entriesLastMonthAgoResult.thisMonth)) /
-              2
-          : Number(entry2AheadMonth.total) + Number(entry2AheadMonth.thisMonth),
-      thisMonth:
-        Number(entriesLastMonthAgoResult.thisMonth) !== 0
-          ? (Number(entriesThisMonthAgoResult.thisMonth) +
-              Number(entriesLastMonthAgoResult.thisMonth)) /
-            2
-          : (Number(entryNextMonth.thisMonth) + Number(entry2AheadMonth.thisMonth)) / 2,
-      date: format(addMonths(today, 3), "yyyy-MM-01"),
-    };
+    const entry3AheadMonth =
+      entry2AheadMonth.type === "percentage"
+        ? {
+            total:
+              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+                ? Number(entry2AheadMonth.total) +
+                  (Number(entriesThisMonthAgoResult.thisMonth) +
+                    Number(entriesLastMonthAgoResult.thisMonth)) /
+                    2
+                : Number(entry2AheadMonth.total) + Number(entry2AheadMonth.thisMonth),
+            thisMonth:
+              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+                ? (Number(entriesThisMonthAgoResult.thisMonth) +
+                    Number(entriesLastMonthAgoResult.thisMonth)) /
+                  2
+                : (Number(entryNextMonth.thisMonth) + Number(entry2AheadMonth.thisMonth)) / 2,
+            date: format(addMonths(today, 3), "yyyy-MM-01"),
+            type: "percentage",
+          }
+        : {
+            total: Number(entry2AheadMonth.total) + Number(entry2AheadMonth.thisMonth),
+            thisMonth: Number(entry2AheadMonth.thisMonth),
+            date: format(addMonths(today, 2), "yyyy-MM-01"),
+            type: "amount",
+          };
 
     return [
       entries3MonthAgoResult,
