@@ -58,7 +58,10 @@ export class AuthenticationUserUseCase {
       "..",
       "images/avatar"
     );
-    const avatar = "http://localhost:3333" + avatarLocation + "/" + user.avatar;
+    const avatar =
+      process.env.disk === "local"
+        ? "http://localhost:3333" + avatarLocation + "/" + user.avatar
+        : process.env.AWS_BUCKET_URL + avatarLocation + "/" + user.avatar;
 
     const tokenReturn: IResponse = {
       token,
