@@ -1,4 +1,4 @@
-import { User } from "../infra/typeorm/entities/User";
+import { User } from "../infra/entities/User";
 import { ICreateUser } from "../interfaces/ICreateUser";
 
 export interface IUsersRepository {
