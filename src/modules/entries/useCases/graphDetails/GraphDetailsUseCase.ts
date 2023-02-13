@@ -140,8 +140,10 @@ export class GraphDetailsUseCase {
         ? {
             total:
               Number(entriesLastMonthAgoResult.thisMonth) !== 0
-                ? Number(entryNextMonth.total) + Number(entriesThisMonthAgoResult.thisMonth)
-                : Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.total),
+                ? Number(entryNextMonth.total) + Number(entriesLastMonthAgoResult.thisMonth)
+                : (Number(entriesThisMonthAgoResult.thisMonth) + Number(entryNextMonth.thisMonth)) /
+                    2 +
+                  Number(entryNextMonth.total),
             thisMonth:
               Number(entriesLastMonthAgoResult.thisMonth) !== 0
                 ? Number(entriesLastMonthAgoResult.thisMonth)
@@ -161,14 +163,20 @@ export class GraphDetailsUseCase {
       entry2AheadMonth.type === "percentage"
         ? {
             total:
-              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+              (Number(entriesLastMonthAgoResult.thisMonth) +
+                Number(entriesThisMonthAgoResult.thisMonth)) /
+                2 !==
+              0
                 ? Number(entry2AheadMonth.total) +
                   (Number(entriesThisMonthAgoResult.thisMonth) +
                     Number(entriesLastMonthAgoResult.thisMonth)) /
                     2
                 : Number(entry2AheadMonth.total) + Number(entry2AheadMonth.thisMonth),
             thisMonth:
-              Number(entriesLastMonthAgoResult.thisMonth) !== 0
+              (Number(entriesLastMonthAgoResult.thisMonth) +
+                Number(entriesThisMonthAgoResult.thisMonth)) /
+                2 !==
+              0
                 ? (Number(entriesThisMonthAgoResult.thisMonth) +
                     Number(entriesLastMonthAgoResult.thisMonth)) /
                   2
@@ -179,7 +187,7 @@ export class GraphDetailsUseCase {
         : {
             total: Number(entry2AheadMonth.total) + Number(entry2AheadMonth.thisMonth),
             thisMonth: Number(entry2AheadMonth.thisMonth),
-            date: format(addMonths(today, 2), "yyyy-MM-01"),
+            date: format(addMonths(today, 3), "yyyy-MM-01"),
             type: "amount",
           };
 
