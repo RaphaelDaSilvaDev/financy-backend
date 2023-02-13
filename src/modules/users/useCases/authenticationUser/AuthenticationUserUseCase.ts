@@ -15,8 +15,8 @@ interface IResponse {
     name: string;
     email: string;
     isAdmin: boolean;
-    avatar: string;
-    date: Date;
+    avatar_url: string;
+    born: Date;
     gender: string;
   };
   token: string;
@@ -62,11 +62,12 @@ export class AuthenticationUserUseCase {
       "images/avatar"
     );
 
-    const avatar = !user.avatar
-      ? null
-      : process.env.disk === "local"
-      ? "http://localhost:3333" + avatarLocation + "/" + user.avatar
-      : process.env.AWS_BUCKET_URL + "/avatar/" + user.avatar;
+    const avatar =
+      user.avatar === null
+        ? null
+        : process.env.disk === "local"
+        ? "http://localhost:3333" + avatarLocation + "/" + user.avatar
+        : process.env.AWS_BUCKET_URL + "/avatar/" + user.avatar;
 
     const tokenReturn: IResponse = {
       token,
@@ -74,8 +75,8 @@ export class AuthenticationUserUseCase {
         name: user.name,
         email: user.email,
         isAdmin: user.isAdmin,
-        avatar,
-        date: user.born,
+        avatar_url: avatar,
+        born: user.born,
         gender: user.gender,
       },
     };
